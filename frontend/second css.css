@@ -3386,3 +3386,90 @@ body.dark-mode .note-chip span {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== AUTH + ROLES ===== */
+#authOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: linear-gradient(120deg, #1c2233, #2b3c63);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--white);
+    color: var(--text);
+    border-radius: 18px;
+    padding: 32px 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+}
+
+.auth-card h2 {
+    font-size: 26px;
+    text-align: center;
+}
+
+.auth-card h2 span {
+    color: var(--primary);
+}
+
+.auth-sub {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin: 6px 0 18px;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.auth-tabs button {
+    flex: 1;
+    padding: 9px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--muted);
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.auth-tabs button.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.auth-card input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    background: var(--white);
+    color: var(--text);
+}
+
+.auth-card input:focus {
+    border-color: var(--primary);
+}
+
+.auth-err {
+    min-height: 18px;
+    margin-bottom: 8px;
+    color: #c0392b;
+    font-size: 12px;
+}
+
+/* hide edit controls from students (server enforces this too) */
+body:not(.role-admin) .admin-only,
+body:not(.role-admin) [data-del] {
+    display: none !important;
+}

@@ -1,16 +1,20 @@
 import csv
+import hashlib
+import hmac
 import io
 import math
 import os
 import random
 import re
+import secrets
 import time
 import uuid
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -19,6 +23,8 @@ import db
 import llm
 import ml
 import seed_data
+
+load_dotenv()
 
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
@@ -31,6 +37,147 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False,
 
 db.init()
 seed_data.ensure(DATA)
+
+
+# ---------------------------------------------------------------- auth
+COOKIE = "ps_session"
+SESSION_DAYS = 30
+ADMIN_USER = os.getenv("ADMIN_USERNAME", "").strip()
+ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "")
+_fails = {}
+
+
+def _hash(pw, salt=None):
+    salt = salt or secrets.token_bytes(16)
+    return salt.hex() + "$" + hashlib.pbkdf2_hmac("sha256", pw.encode(), salt, 200_000).hex()
+
+
+def _verify(pw, stored):
+    try:
+        salt, _ = (stored or "").split("$")
+        return hmac.compare_digest(_hash(pw, bytes.fromhex(salt)), stored)
+    except ValueError:
+        return False
+
+
+def _tok_hash(tok):
+    return hashlib.sha256(tok.encode()).hexdigest()
+
+
+def _start_session(response: Response, user_id):
+    tok = secrets.token_urlsafe(32)
+    with db.conn() as c:
+        c.execute("DELETE FROM sessions WHERE expires<?", (time.time(),))
+        c.execute("INSERT INTO sessions(token,user_id,expires) VALUES(?,?,?)",
+                  (_tok_hash(tok), user_id, time.time() + SESSION_DAYS * 86400))
+        c.commit()
+    response.set_cookie(COOKIE, tok, max_age=SESSION_DAYS * 86400, httponly=True, samesite="lax")
+
+
+def _user_from_request(request: Request):
+    tok = request.cookies.get(COOKIE)
+    if not tok:
+        return None
+    with db.conn() as c:
+        row = c.execute("SELECT u.id, u.username, u.role FROM sessions s JOIN users u ON u.id=s.user_id "
+                        "WHERE s.token=? AND s.expires>?", (_tok_hash(tok), time.time())).fetchone()
+    return dict(row) if row else None
+
+
+def current_user(request: Request):
+    user = _user_from_request(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Please log in.")
+    return user
+
+
+def admin_user(user: dict = Depends(current_user)):
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Only the admin can do this.")
+    return user
+
+
+def _check_rate(key):
+    now = time.time()
+    recent = [t for t in _fails.get(key, []) if now - t < 300]
+    _fails[key] = recent
+    if len(recent) >= 5:
+        raise HTTPException(status_code=429, detail="Too many attempts. Try again in a few minutes.")
+
+
+def seed_admin():
+    if not ADMIN_USER or not ADMIN_PASS:
+        print("WARNING: set ADMIN_USERNAME and ADMIN_PASSWORD in .env to create the admin account.")
+        return
+    with db.conn() as c:
+        row = c.execute("SELECT id FROM users WHERE lower(username)=lower(?)", (ADMIN_USER,)).fetchone()
+        if row:
+            uid = row["id"]
+            c.execute("UPDATE users SET pw=?, role='admin' WHERE id=?", (_hash(ADMIN_PASS), uid))
+        else:
+            uid = c.execute("INSERT INTO users(username,pw,role,ts) VALUES(?,?,?,?)",
+                            (ADMIN_USER, _hash(ADMIN_PASS), "admin", time.time())).lastrowid
+        for t in ("attempts", "responses", "evaluations", "interview_evaluations"):
+            c.execute(f"UPDATE {t} SET user_id=? WHERE user_id IS NULL", (uid,))   # old data -> admin
+        c.commit()
+
+
+seed_admin()
+
+
+class AuthIn(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/api/auth/register")
+def register(payload: AuthIn, response: Response):
+    u = payload.username.strip()
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", u):
+        raise HTTPException(status_code=400, detail="Username: 3-30 letters, numbers, dot, dash or underscore.")
+    if not 6 <= len(payload.password) <= 128:
+        raise HTTPException(status_code=400, detail="Password must be 6-128 characters.")
+    if ADMIN_USER and u.lower() == ADMIN_USER.lower():
+        raise HTTPException(status_code=400, detail="This username is not available.")
+    with db.conn() as c:
+        if c.execute("SELECT 1 FROM users WHERE lower(username)=lower(?)", (u,)).fetchone():
+            raise HTTPException(status_code=400, detail="Username already taken.")
+        uid = c.execute("INSERT INTO users(username,pw,role,ts) VALUES(?,?,?,?)",
+                        (u, _hash(payload.password), "student", time.time())).lastrowid
+        c.commit()
+    _start_session(response, uid)
+    return {"user": {"username": u, "role": "student"}}
+
+
+@app.post("/api/auth/login")
+def login(payload: AuthIn, request: Request, response: Response):
+    key = (request.client.host if request.client else "?") + "|" + payload.username.strip().lower()
+    _check_rate(key)
+    with db.conn() as c:
+        row = c.execute("SELECT * FROM users WHERE lower(username)=lower(?)",
+                        (payload.username.strip(),)).fetchone()
+    if not row or not _verify(payload.password, row["pw"]):
+        _fails.setdefault(key, []).append(time.time())
+        raise HTTPException(status_code=401, detail="Wrong username or password.")
+    _start_session(response, row["id"])
+    return {"user": {"username": row["username"], "role": row["role"]}}
+
+
+@app.post("/api/auth/logout")
+def logout(request: Request, response: Response):
+    tok = request.cookies.get(COOKIE)
+    if tok:
+        with db.conn() as c:
+            c.execute("DELETE FROM sessions WHERE token=?", (_tok_hash(tok),))
+            c.commit()
+    response.delete_cookie(COOKIE)
+    return {"ok": True}
+
+
+@app.get("/api/auth/me")
+def me(request: Request):
+    user = _user_from_request(request)
+    return {"user": {"username": user["username"], "role": user["role"]} if user else None}
 
 
 # ---------------------------------------------------------------- data helpers
@@ -72,7 +219,7 @@ def normalise_answer(value, row=None):
     m = re.fullmatch(r"\(?([A-Da-d])\)?[.)]?", v)
     if m:
         return m.group(1).upper()
-    if row:  # answer given as option text
+    if row:
         for k, t in clean_options(row).items():
             if t and t.strip().lower() == v.lower():
                 return k
@@ -149,29 +296,29 @@ def health():
 
 
 @app.get("/api/ml/status")
-def ml_status():
+def ml_status(user: dict = Depends(admin_user)):
     with db.conn() as c:
         n_llm = c.execute("SELECT COUNT(*) n FROM evaluations WHERE source='llm'").fetchone()["n"]
         n_resp = c.execute("SELECT COUNT(*) n FROM responses").fetchone()["n"]
-        ab = {r["subject"]: round(r["theta"], 2) for r in c.execute("SELECT subject,theta FROM ability")}
+        n_users = c.execute("SELECT COUNT(*) n FROM users").fetchone()["n"]
     return {"llm_labelled_evaluations": n_llm, "mains_model_active": n_llm >= 25,
-            "responses_logged": n_resp, "ability_by_subject": ab}
+            "responses_logged": n_resp, "users": n_users}
 
 
 # ---------------------------------------------------------------- MCQ / mains lists
 @app.get("/api/mcqs")
-def mcqs(subject: str = "all", n: int = 20):
+def mcqs(subject: str = "all", n: int = 20, user: dict = Depends(current_user)):
     rows = get_mcqs()
     if subject.lower() != "all":
         rows = [q for q in rows if same_subject(q, subject)]
-        chosen = ml.pick_adaptive(rows, max(1, n))
+        chosen = ml.pick_adaptive(rows, max(1, n), user["id"])
     else:
         chosen = random.sample(rows, min(max(n, 1), len(rows))) if rows else []
     return [public_mcq(q) for q in chosen]
 
 
 @app.get("/api/mains")
-def mains(paper: str = "all", subject: str = "all"):
+def mains(paper: str = "all", subject: str = "all", user: dict = Depends(current_user)):
     rows = get_mains()
     if paper.lower() != "all":
         rows = [q for q in rows if q.get("paper", "").lower() == paper.lower()]
@@ -197,7 +344,7 @@ def _clean_criteria(crit):
     return out
 
 
-def evaluate_answer(question, answer, word_limit, marks):
+def evaluate_answer(question, answer, word_limit, marks, user_id):
     meta = next((q for q in get_mains() if q.get("question") == question), {})
     kws = [k.strip() for k in re.split(r"[;|]", meta.get("keywords", "")) if k.strip()]
     feat = ml.mains_features(question, answer, word_limit, kws, meta.get("model_answer", ""))
@@ -226,22 +373,23 @@ feedback is a list of improvement suggestions."""
             source, label = "llm", s / marks
         except (KeyError, TypeError, ValueError):
             pass
-    ml.save_evaluation(question, answer, out["score"], marks, out["summary"], feat, source, label)
+    ml.save_evaluation(question, answer, out["score"], marks, out["summary"], feat, source, label, user_id)
     return out
 
 
 @app.post("/api/evaluate")
-def evaluate(payload: EvalIn):
+def evaluate(payload: EvalIn, user: dict = Depends(current_user)):
     if not payload.question.strip() or not payload.answer.strip():
         raise HTTPException(status_code=400, detail="Question and answer are required.")
-    return evaluate_answer(payload.question, payload.answer, max(1, payload.word_limit), max(1, payload.marks))
+    return evaluate_answer(payload.question, payload.answer, max(1, payload.word_limit),
+                           max(1, payload.marks), user["id"])
 
 
 @app.post("/api/mains/ocr")
-async def mains_ocr(files: List[UploadFile] = File(...)):
+async def mains_ocr(files: List[UploadFile] = File(...), user: dict = Depends(current_user)):
     mimes = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
     images = []
-    for f in files[:5]:                                   # up to 5 pages
+    for f in files[:5]:
         mime = mimes.get(Path(f.filename or "").suffix.lower())
         if not mime:
             raise HTTPException(status_code=400, detail="Upload PNG, JPG or WEBP photos.")
@@ -258,7 +406,7 @@ async def mains_ocr(files: List[UploadFile] = File(...)):
             "Do not correct, summarise or add anything. Join multiple pages in order.",
             images)
 
-    if not text:                                          # fallback: Tesseract (weak on handwriting)
+    if not text:
         try:
             import pytesseract
             from PIL import Image
@@ -308,17 +456,18 @@ def test_pool(test):
     rows = get_mcqs()
     if test["subject"] == "all":
         return rows
-    pool = [q for q in rows if same_subject(q, test["subject"])]   # strict single-subject pool
+    pool = [q for q in rows if same_subject(q, test["subject"])]
     return [q for q in pool if q.get("year")] if test["pyq"] else pool
 
 
 @app.get("/api/tests")
-def tests():
+def tests(user: dict = Depends(current_user)):
     return build_tests()
 
 
 @app.get("/api/tests/{test_id}/questions")
-def test_questions(test_id: str):
+def test_questions(test_id: str, user: dict = Depends(current_user)):
+    uid = user["id"]
     test = find_test(test_id)
     pool = test_pool(test)
     if test["subject"] == "all":
@@ -326,16 +475,16 @@ def test_questions(test_id: str):
         per = max(1, test["count"] // max(1, len(subs)))
         chosen = []
         for s in subs:
-            chosen += ml.pick_adaptive([q for q in pool if same_subject(q, s)], per)
+            chosen += ml.pick_adaptive([q for q in pool if same_subject(q, s)], per, uid)
         rest = [q for q in pool if q not in chosen]
         if len(chosen) < test["count"]:
-            chosen += ml.pick_adaptive(rest, test["count"] - len(chosen))
+            chosen += ml.pick_adaptive(rest, test["count"] - len(chosen), uid)
         chosen = chosen[:test["count"]]
         random.shuffle(chosen)
     elif test["pyq"]:
         chosen = sorted(pool, key=lambda q: -as_int(q.get("year")))[:test["count"]]
     else:
-        chosen = ml.pick_adaptive(pool, test["count"])
+        chosen = ml.pick_adaptive(pool, test["count"], uid)
 
     if test["subject"] != "all" and any(not same_subject(q, test["subject"]) for q in chosen):
         raise HTTPException(status_code=500, detail="Subject purity check failed.")
@@ -350,7 +499,7 @@ def test_questions(test_id: str):
 
 
 @app.post("/api/tests/submit")
-def submit_test(payload: SubmitIn):
+def submit_test(payload: SubmitIn, user: dict = Depends(current_user)):
     test = find_test(payload.test_id)
     by_id = {q["id"]: q for q in test_pool(test)}
     if any(k not in by_id for k in payload.answers):
@@ -387,11 +536,12 @@ def submit_test(payload: SubmitIn):
     accuracy = round(correct / attempted * 100, 1) if attempted else 0.0
 
     with db.conn() as c:
-        c.execute("INSERT INTO attempts(ts,test_id,subject,score,total,accuracy,seconds) VALUES(?,?,?,?,?,?,?)",
+        c.execute("INSERT INTO attempts(ts,test_id,subject,score,total,accuracy,seconds,user_id) "
+                  "VALUES(?,?,?,?,?,?,?,?)",
                   (time.time(), payload.test_id, test["subject"], marks, total * 2, accuracy,
-                   max(0, payload.seconds)))
+                   max(0, payload.seconds), user["id"]))
         c.commit()
-    ml.record_responses(log)   # updates ability, question difficulty, topic mastery
+    ml.record_responses(log, user["id"])
 
     return {"marks": round(marks, 2), "max_marks": total * 2, "correct": correct, "wrong": wrong,
             "skipped": skipped, "accuracy": accuracy, "review": review, "subject_stats": subj_stats}
@@ -399,7 +549,7 @@ def submit_test(payload: SubmitIn):
 
 # ---------------------------------------------------------------- interview
 @app.get("/api/interview/questions")
-def interview_questions(n: int = 5):
+def interview_questions(n: int = 5, user: dict = Depends(current_user)):
     rows = load_csv("interview_questions.csv")
     if not rows:
         rows = [{"id": "I001", "category": "Introduction",
@@ -408,7 +558,7 @@ def interview_questions(n: int = 5):
 
 
 @app.post("/api/interview/evaluate")
-def interview_evaluate(payload: InterviewIn):
+def interview_evaluate(payload: InterviewIn, user: dict = Depends(current_user)):
     local = ml.interview_score(payload.question, payload.answer)
     overall, scores, feedback, follow = (local["overall"], local["scores"], local["feedback"],
                                          local["follow_up"])
@@ -433,8 +583,9 @@ feedback (list), follow_up (string). Be constructive. Do not claim to measure vo
             except (TypeError, ValueError):
                 pass
     with db.conn() as c:
-        c.execute("INSERT INTO interview_evaluations(ts,question,answer,score,feedback) VALUES(?,?,?,?,?)",
-                  (time.time(), payload.question, payload.answer, overall, "; ".join(map(str, feedback))))
+        c.execute("INSERT INTO interview_evaluations(ts,question,answer,score,feedback,user_id) VALUES(?,?,?,?,?,?)",
+                  (time.time(), payload.question, payload.answer, overall,
+                   "; ".join(map(str, feedback)), user["id"]))
         c.commit()
     return {"overall": overall, "scores": scores, "feedback": feedback, "follow_up": follow}
 
@@ -463,7 +614,7 @@ def _read_upload(name, content):
 
 
 @app.post("/api/newspaper/analyze")
-async def newspaper_analyze(file: UploadFile = File(...)):
+async def newspaper_analyze(file: UploadFile = File(...), user: dict = Depends(current_user)):
     text = _read_upload((file.filename or "").lower(), await file.read())
     if not text.strip():
         raise HTTPException(status_code=400, detail="No readable text found. Scanned PDFs need OCR first.")
@@ -496,7 +647,7 @@ Text:
 
 # ---------------------------------------------------------------- doubt solver (RAG)
 @app.post("/api/chat")
-def chat(payload: ChatIn):
+def chat(payload: ChatIn, user: dict = Depends(current_user)):
     docs, shown = [], []
     for r in load_csv("doubt_knowledge.csv"):
         t = " ".join(v for v in r.values() if v)
@@ -524,15 +675,16 @@ def chat(payload: ChatIn):
 
 # ---------------------------------------------------------------- stats / revision
 @app.get("/api/stats")
-def stats():
+def stats(user: dict = Depends(current_user)):
+    uid = user["id"]
     now = time.time()
     bank = get_mcqs()
     subjects = get_subjects()
     with db.conn() as c:
-        att = c.execute("SELECT ts,seconds FROM attempts WHERE total IS NOT NULL").fetchall()
-        resp = c.execute("SELECT ts,subject,topic,correct FROM responses").fetchall()
-        evs = c.execute("SELECT ts,score,max_score FROM evaluations").fetchall()
-        n_int = c.execute("SELECT COUNT(*) AS n FROM interview_evaluations").fetchone()["n"]
+        att = c.execute("SELECT ts,seconds FROM attempts WHERE total IS NOT NULL AND user_id=?", (uid,)).fetchall()
+        resp = c.execute("SELECT ts,subject,topic,correct FROM responses WHERE user_id=?", (uid,)).fetchall()
+        evs = c.execute("SELECT ts,score,max_score FROM evaluations WHERE user_id=?", (uid,)).fetchall()
+        n_int = c.execute("SELECT COUNT(*) AS n FROM interview_evaluations WHERE user_id=?", (uid,)).fetchone()["n"]
 
     def acc(rs):
         return round(sum(r["correct"] or 0 for r in rs) / len(rs) * 100, 1) if rs else 0.0
@@ -576,10 +728,10 @@ def stats():
 
 
 @app.get("/api/revision")
-def revision():
+def revision(user: dict = Depends(current_user)):
     bank = get_mcqs()
     subjects = get_subjects()
-    mastery = ml.topic_mastery()
+    mastery = ml.topic_mastery(user["id"])
     items = []
     for s in subjects:
         topics = sorted({q["topic"] for q in bank if same_subject(q, s)})
@@ -631,14 +783,16 @@ def _marks(correct, wrong):
 
 
 @app.get("/api/score-summary")
-def score_summary():
+def score_summary(user: dict = Depends(current_user)):
+    uid = user["id"]
     names = {ml.norm(s): s for s in get_subjects()}
     titles = {t["id"]: t["title"] for t in build_tests()}
     with db.conn() as c:
-        resp = c.execute("SELECT subject,topic,correct FROM responses").fetchall()
+        resp = c.execute("SELECT subject,topic,correct FROM responses WHERE user_id=?", (uid,)).fetchall()
         att = c.execute("SELECT ts,test_id,subject,score,total,accuracy FROM attempts "
-                        "WHERE total IS NOT NULL ORDER BY id DESC LIMIT 20").fetchall()
-        n_tests = c.execute("SELECT COUNT(*) n FROM attempts WHERE total IS NOT NULL").fetchone()["n"]
+                        "WHERE total IS NOT NULL AND user_id=? ORDER BY id DESC LIMIT 20", (uid,)).fetchall()
+        n_tests = c.execute("SELECT COUNT(*) n FROM attempts WHERE total IS NOT NULL AND user_id=?",
+                            (uid,)).fetchone()["n"]
 
     agg = {}
     for r in resp:
@@ -677,7 +831,7 @@ def score_summary():
     }
 
 
-# ---------------------------------------------------------------- video upload
+# ---------------------------------------------------------------- video (admin uploads, students watch)
 VIDEO_DIR = UPLOADS / "videos"
 VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 VIDEO_EXT = {".mp4", ".webm", ".mov", ".mkv", ".ogg", ".m4v"}
@@ -691,7 +845,8 @@ def _video_row(r):
 
 
 @app.post("/api/videos/upload")
-async def upload_video(file: UploadFile = File(...), title: str = Form(""), subject: str = Form("General")):
+async def upload_video(file: UploadFile = File(...), title: str = Form(""), subject: str = Form("General"),
+                       user: dict = Depends(admin_user)):
     ext = Path(file.filename or "").suffix.lower()
     if ext not in VIDEO_EXT:
         raise HTTPException(status_code=400, detail="Upload an mp4, webm, mov, mkv, ogg or m4v video.")
@@ -718,7 +873,7 @@ async def upload_video(file: UploadFile = File(...), title: str = Form(""), subj
 
 
 @app.get("/api/videos")
-def list_videos(subject: str = "all"):
+def list_videos(subject: str = "all", user: dict = Depends(current_user)):
     with db.conn() as c:
         rows = c.execute("SELECT * FROM videos ORDER BY id DESC").fetchall()
     if subject.lower() != "all":
@@ -727,7 +882,7 @@ def list_videos(subject: str = "all"):
 
 
 @app.delete("/api/videos/{video_id}")
-def delete_video(video_id: int):
+def delete_video(video_id: int, user: dict = Depends(admin_user)):
     with db.conn() as c:
         row = c.execute("SELECT * FROM videos WHERE id=?", (video_id,)).fetchone()
         if not row:
@@ -738,7 +893,7 @@ def delete_video(video_id: int):
     return {"deleted": video_id}
 
 
-# ---------------------------------------------------------------- notes
+# ---------------------------------------------------------------- notes (admin writes, students read)
 NOTES_DIR = UPLOADS / "notes"
 NOTES_DIR.mkdir(parents=True, exist_ok=True)
 NOTE_EXT = {".pdf", ".png", ".jpg", ".jpeg", ".txt", ".md", ".docx", ".pptx"}
@@ -756,7 +911,7 @@ def _note_row(r):
 
 @app.post("/api/notes")
 async def add_note(title: str = Form(""), subject: str = Form("General"), content: str = Form(""),
-                   file: Optional[UploadFile] = File(None)):
+                   file: Optional[UploadFile] = File(None), user: dict = Depends(admin_user)):
     has_file = bool(file and file.filename)
     if not content.strip() and not has_file:
         raise HTTPException(status_code=400, detail="Write some notes or attach a file.")
@@ -792,7 +947,7 @@ async def add_note(title: str = Form(""), subject: str = Form("General"), conten
 
 
 @app.get("/api/notes/subjects")
-def note_subjects():
+def note_subjects(user: dict = Depends(current_user)):
     with db.conn() as c:
         rows = c.execute("SELECT subject, COUNT(*) AS n FROM notes GROUP BY subject").fetchall()
     counts, names = {}, {}
@@ -800,7 +955,7 @@ def note_subjects():
         k = ml.norm(r["subject"])
         counts[k] = counts.get(k, 0) + r["n"]
         names.setdefault(k, r["subject"])
-    for s in get_subjects():                      # subjects from the question bank always appear
+    for s in get_subjects():
         names.setdefault(ml.norm(s), s)
     return {"total": sum(counts.values()),
             "subjects": [{"subject": names[k], "count": counts.get(k, 0)}
@@ -808,16 +963,16 @@ def note_subjects():
 
 
 @app.get("/api/notes")
-def list_notes(subject: str = "all"):
+def list_notes(subject: str = "all", user: dict = Depends(current_user)):
     with db.conn() as c:
         rows = c.execute("SELECT * FROM notes ORDER BY id DESC").fetchall()
-    if subject.lower() != "all":                  # strict single-subject filter
+    if subject.lower() != "all":
         rows = [r for r in rows if ml.norm(r["subject"]) == ml.norm(subject)]
     return [_note_row(r) for r in rows]
 
 
 @app.delete("/api/notes/{note_id}")
-def delete_note(note_id: int):
+def delete_note(note_id: int, user: dict = Depends(admin_user)):
     with db.conn() as c:
         row = c.execute("SELECT * FROM notes WHERE id=?", (note_id,)).fetchone()
         if not row:
@@ -830,7 +985,7 @@ def delete_note(note_id: int):
 
 
 # ---------------------------------------------------------------- static files (keep LAST)
-app.mount("/media", StaticFiles(directory=str(UPLOADS)), name="media")   # must be before "/"
+app.mount("/media", StaticFiles(directory=str(UPLOADS)), name="media")
 
 if FRONTEND.exists():
     app.mount("/", StaticFiles(directory=str(FRONTEND), html=True), name="frontend")

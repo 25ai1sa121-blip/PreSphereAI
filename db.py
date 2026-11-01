@@ -21,24 +21,27 @@ def _ensure(c, table, cols):
 def init():
     with conn() as c:
         _ensure(c, "attempts", {"ts": "REAL", "test_id": "TEXT", "subject": "TEXT", "score": "REAL",
-                                "total": "REAL", "accuracy": "REAL", "seconds": "INTEGER"})
+                                "total": "REAL", "accuracy": "REAL", "seconds": "INTEGER",
+                                "user_id": "INTEGER"})
         _ensure(c, "responses", {"ts": "REAL", "test_id": "TEXT", "qid": "TEXT", "subject": "TEXT",
-                                 "topic": "TEXT", "correct": "INTEGER"})
+                                 "topic": "TEXT", "correct": "INTEGER", "user_id": "INTEGER"})
         _ensure(c, "evaluations", {"ts": "REAL", "question": "TEXT", "answer": "TEXT", "score": "REAL",
                                    "max_score": "REAL", "feedback": "TEXT", "features": "TEXT",
-                                   "source": "TEXT", "score_frac": "REAL"})
+                                   "source": "TEXT", "score_frac": "REAL", "user_id": "INTEGER"})
         _ensure(c, "interview_evaluations", {"ts": "REAL", "question": "TEXT", "answer": "TEXT",
-                                             "score": "REAL", "feedback": "TEXT"})
+                                             "score": "REAL", "feedback": "TEXT", "user_id": "INTEGER"})
+        _ensure(c, "videos", {"ts": "REAL", "title": "TEXT", "subject": "TEXT",
+                              "filename": "TEXT", "original_name": "TEXT", "size": "INTEGER"})
+        _ensure(c, "notes", {"ts": "REAL", "title": "TEXT", "subject": "TEXT", "content": "TEXT",
+                             "filename": "TEXT", "original_name": "TEXT", "size": "INTEGER"})
+        _ensure(c, "users", {"username": "TEXT", "pw": "TEXT", "role": "TEXT", "ts": "REAL"})
+        _ensure(c, "sessions", {"token": "TEXT", "user_id": "INTEGER", "expires": "REAL"})
+        c.execute("CREATE UNIQUE INDEX IF NOT EXISTS ux_users_name ON users(lower(username))")
+        c.execute("CREATE INDEX IF NOT EXISTS ix_sessions_token ON sessions(token)")
         c.execute("""CREATE TABLE IF NOT EXISTS question_stats(
             qid TEXT PRIMARY KEY, subject TEXT, topic TEXT,
             difficulty REAL, attempts INTEGER, correct INTEGER)""")
-        c.execute("""CREATE TABLE IF NOT EXISTS ability(
-            subject TEXT PRIMARY KEY, theta REAL, n INTEGER)""")
-        _ensure(c, "videos", {"ts": "REAL", "title": "TEXT", "subject": "TEXT",
-            "filename": "TEXT", "original_name": "TEXT", "size": "INTEGER"})
-
-
-        _ensure(c, "notes", {"ts": "REAL", "title": "TEXT", "subject": "TEXT", "content": "TEXT",
-                             "filename": "TEXT", "original_name": "TEXT", "size": "INTEGER"})
-
+        c.execute("""CREATE TABLE IF NOT EXISTS user_ability(
+            user_id INTEGER, subject TEXT, theta REAL, n INTEGER,
+            PRIMARY KEY(user_id, subject))""")
         c.commit()

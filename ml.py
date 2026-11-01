@@ -52,7 +52,7 @@ def retrieve(query, docs, k=3, min_score=0.08):
 DIFF_PRIOR = {"easy": -1.0, "medium": 0.0, "hard": 1.0}
 
 
-def record_responses(items):
+def record_responses(items, user_id):
     """items: dicts with qid, subject, topic, difficulty, attempted, correct, test_id."""
     now = time.time()
     with db.conn() as c:
@@ -60,28 +60,32 @@ def record_responses(items):
             if not it["attempted"]:
                 continue
             y = 1.0 if it["correct"] else 0.0
-            c.execute("INSERT INTO responses(ts,test_id,qid,subject,topic,correct) VALUES(?,?,?,?,?,?)",
-                      (now, it["test_id"], it["qid"], it["subject"], it["topic"], int(y)))
+            c.execute("INSERT INTO responses(ts,test_id,qid,subject,topic,correct,user_id) VALUES(?,?,?,?,?,?,?)",
+                      (now, it["test_id"], it["qid"], it["subject"], it["topic"], int(y), user_id))
             qs = c.execute("SELECT * FROM question_stats WHERE qid=?", (it["qid"],)).fetchone()
             b = qs["difficulty"] if qs else DIFF_PRIOR.get(norm(it["difficulty"]), 0.0)
             n = qs["attempts"] if qs else 0
             nc = qs["correct"] if qs else 0
-            ab = c.execute("SELECT theta,n FROM ability WHERE subject=?", (it["subject"],)).fetchone()
+            ab = c.execute("SELECT theta,n FROM user_ability WHERE user_id=? AND subject=?",
+                           (user_id, it["subject"])).fetchone()
             theta, na = (ab["theta"], ab["n"]) if ab else (0.0, 0)
             p = sig(theta - b)
             theta += 0.4 / math.sqrt(1 + na / 5) * (y - p)
-            b -= 0.2 / math.sqrt(1 + n / 3) * (y - p)
+            b -= 0.2 / math.sqrt(1 + n / 3) * (y - p)      # difficulty is shared across all students
             c.execute("INSERT OR REPLACE INTO question_stats VALUES(?,?,?,?,?,?)",
                       (it["qid"], it["subject"], it["topic"], b, n + 1, nc + int(y)))
-            c.execute("INSERT OR REPLACE INTO ability VALUES(?,?,?)", (it["subject"], theta, na + 1))
+            c.execute("INSERT OR REPLACE INTO user_ability VALUES(?,?,?,?)",
+                      (user_id, it["subject"], theta, na + 1))
         c.commit()
 
 
-def topic_mastery(half_life_days=7.0):
-    """Recency-weighted, Beta-smoothed topic accuracy + forgetting-curve retention."""
+# 
+# 
+def topic_mastery(user_id=None, half_life_days=7.0):
+    """Recency-weighted, Beta-smoothed topic accuracy + forgetting-curve retention (per student)."""
     now = time.time()
     with db.conn() as c:
-        rows = c.execute("SELECT ts,subject,topic,correct FROM responses").fetchall()
+        rows = c.execute("SELECT ts,subject,topic,correct FROM responses WHERE user_id=?", (user_id,)).fetchall()
     agg = defaultdict(lambda: [0.0, 0.0, 0, 0.0, 0])
     for r in rows:
         ts = r["ts"] or now
@@ -100,17 +104,19 @@ def topic_mastery(half_life_days=7.0):
     return out
 
 
-def pick_adaptive(rows, n):
-    """Choose n questions: target ~65% success probability, favour weak topics, avoid recent repeats."""
+def pick_adaptive(rows, n, user_id=None):
+    """Choose n questions for this student: ~65% success probability, weak topics, no recent repeats."""
     rows = list(rows)
     if len(rows) <= n:
         random.shuffle(rows)
         return rows
     with db.conn() as c:
         qs = {r["qid"]: r["difficulty"] for r in c.execute("SELECT qid,difficulty FROM question_stats")}
-        ab = {r["subject"]: r["theta"] for r in c.execute("SELECT subject,theta FROM ability")}
-        seen = {r["qid"]: r["t"] for r in c.execute("SELECT qid,MAX(ts) t FROM responses GROUP BY qid")}
-    mastery = topic_mastery()
+        ab = {r["subject"]: r["theta"] for r in
+              c.execute("SELECT subject,theta FROM user_ability WHERE user_id=?", (user_id,))}
+        seen = {r["qid"]: r["t"] for r in
+                c.execute("SELECT qid,MAX(ts) t FROM responses WHERE user_id=? GROUP BY qid", (user_id,))}
+    mastery = topic_mastery(user_id)
     now = time.time()
     scored = []
     for q in rows:
@@ -396,12 +402,12 @@ def mains_score(f, marks):
             "criteria": crit, "feedback": fb}
 
 
-def save_evaluation(question, answer, score, max_score, summary, feat, source, label):
+def save_evaluation(question, answer, score, max_score, summary, feat, source, label, user_id=None):
     with db.conn() as c:
-        c.execute("INSERT INTO evaluations(ts,question,answer,score,max_score,feedback,features,source,score_frac) "
-                  "VALUES(?,?,?,?,?,?,?,?,?)",
+        c.execute("INSERT INTO evaluations(ts,question,answer,score,max_score,feedback,features,source,score_frac,user_id) "
+                  "VALUES(?,?,?,?,?,?,?,?,?,?)",
                   (time.time(), question, answer, score, max_score, summary,
-                   json.dumps([feat[k] for k in FEATURES]), source, label))
+                   json.dumps([feat[k] for k in FEATURES]), source, label, user_id))
         c.commit()
 
 
