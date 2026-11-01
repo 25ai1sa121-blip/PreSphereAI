@@ -1,0 +1,21 @@
+id,subject,topic,difficulty,year,question,option_a,option_b,option_c,option_d,answer,explanation
+Q1,Polity,Executive,Easy,2018,Who is the constitutional head of the Union executive of India?,President,Prime Minister,Chief Justice,Speaker,A,Article 53 vests the executive power of the Union in the President.
+Q2,Polity,Amendments,Medium,2019,Fundamental Duties were added by which Constitutional Amendment?,42nd,44th,73rd,86th,A,The 42nd Amendment (1976) added Article 51A.
+Q3,Polity,Fundamental Rights,Easy,2020,Right to Constitutional Remedies is guaranteed under which Article?,Article 14,Article 19,Article 21,Article 32,D,Article 32 allows citizens to approach the Supreme Court for enforcement of Fundamental Rights.
+Q4,Polity,Parliament,Medium,2017,A Money Bill can be introduced only in the:,Rajya Sabha,Lok Sabha,Either House,Joint sitting,B,Money Bills originate only in the Lok Sabha.
+Q5,Polity,DPSP,Medium,2016,Directive Principles of State Policy were borrowed from the Constitution of:,USA,UK,Ireland,Canada,C,DPSPs were inspired by the Irish Constitution.
+Q6,Economy,Monetary Policy,Easy,2018,Repo rate is the rate at which the RBI lends to:,Commercial banks,Government,NABARD,Public,A,Repo rate is the short-term lending rate for commercial banks.
+Q7,Economy,Taxation,Easy,2019,GST was implemented in India in:,2015,2016,2017,2018,C,GST came into effect on 1 July 2017.
+Q8,Economy,Fiscal Policy,Medium,2020,Fiscal deficit equals total expenditure minus:,Revenue receipts,Total receipts excluding borrowings,Tax revenue,Capital receipts,B,Fiscal deficit = total expenditure - total receipts excluding borrowings.
+Q9,Economy,Planning,Easy,2017,NITI Aayog replaced which body?,Finance Commission,Planning Commission,RBI,SEBI,B,NITI Aayog replaced the Planning Commission in 2015.
+Q10,Economy,Agriculture,Medium,2021,Minimum Support Prices are announced on the recommendation of:,NABARD,CACP,SEBI,FCI,B,CACP recommends MSP for notified crops.
+Q11,Geography,Rivers,Easy,2018,Which is the longest river of peninsular India?,Krishna,Godavari,Kaveri,Narmada,B,The Godavari is the longest peninsular river.
+Q12,Geography,Mountains,Medium,2019,The highest peak of the Western Ghats is:,Doddabetta,Anamudi,Mahendragiri,Kalsubai,B,"Anamudi (2,695 m) in Kerala is the highest."
+Q13,Geography,Climate,Medium,2020,Through how many Indian states does the Tropic of Cancer pass?,6,7,8,9,C,It passes through eight states.
+Q14,Geography,Lakes,Easy,2017,Chilika lake is located in:,Andhra Pradesh,Odisha,Tamil Nadu,West Bengal,B,Chilika is a brackish lagoon in Odisha.
+Q15,Geography,Soils,Easy,2016,Black soil is most suitable for:,Cotton,Tea,Rubber,Jute,A,Regur (black) soil retains moisture and suits cotton.
+Q16,History,Ancient India,Easy,2018,Who founded the Mauryan Empire?,Ashoka,Chandragupta Maurya,Bindusara,Harshavardhana,B,Chandragupta Maurya founded it c. 321 BCE.
+Q17,History,Modern India,Easy,2019,The Revolt of 1857 began at:,Delhi,Kanpur,Meerut,Lucknow,C,It began at Meerut on 10 May 1857.
+Q18,History,Freedom Movement,Medium,2020,The Quit India Movement was launched in:,1930,1940,1942,1946,C,"Launched in August 1942 at Gowalia Tank, Bombay."
+Q19,History,Ancient India,Medium,2017,Who wrote the Arthashastra?,Kalidasa,Kautilya,Banabhatta,Vishakhadatta,B,Kautilya (Chanakya) is the traditional author.
+Q20,History,Modern India,Medium,2021,The Battle of Plassey was fought in:,1757,1764,1761,1799,A,Plassey (1757) established Company dominance in Bengal.

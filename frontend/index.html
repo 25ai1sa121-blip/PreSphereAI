@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PreSphere AI</title>
+
+    <link rel="icon" href="data:,">
+
+
+
+    <link rel="stylesheet" href="second css.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+
+            <div>
+                <h2>PreSphere<span>AI</span></h2>
+                <small>One Platform Many Exams</small>
+            </div>
+        </div>
+
+        <nav>
+
+            <p class="menu-title">MAIN</p>
+
+            <a href="#" class="nav-link active" data-page="home">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+
+            <a href="#" class="nav-link" data-page="dashboard">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <p class="menu-title">AI TOOLS</p>
+
+            <a href="#" class="nav-link" data-page="evaluator">
+                <i class="fa-solid fa-file-circle-check"></i>
+                <span>Mains Evaluator</span>
+            </a>
+
+            <a href="#" class="nav-link" data-page="newspaper">
+                <i class="fa-solid fa-newspaper"></i>
+                <span>Newspaper Analyzer</span>
+            </a>
+
+            <a href="#" class="nav-link" data-page="revision">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Revision Map</span>
+            </a>
+
+            <a href="#" class="nav-link" data-page="interview">
+                <i class="fa-solid fa-microphone"></i>
+                <span>Interview Simulator</span>
+            </a>
+
+            <p class="menu-title">LEARNING</p>
+
+            <a href="#" class="nav-link" data-page="tests">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Test Series</span>
+            </a>
+
+            <a href="#" class="nav-link" data-page="current">
+                <i class="fa-solid fa-globe"></i>
+                <span>Current Affairs</span>
+            </a>
+
+            <a href="#" class="nav-link" data-page="mentor">
+                <i class="fa-solid fa-user-group"></i>
+                <span>Mentor Hub</span>
+            </a>
+
+            <a href="#" class="nav-link" data-page="doubt">
+                <i class="fa-solid fa-robot"></i>
+                <span>AI Doubt Solver</span>
+            </a>
+
+            <p class="menu-title">SYSTEM</p>
+
+            <a href="#" class="nav-link" data-page="analytics">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Analytics</span>
+            </a>
+
+            <a href="#" class="nav-link" data-page="developer">
+                <i class="fa-solid fa-code"></i>
+                <span>Developer</span>
+            </a>
+
+            <a href="#" class="nav-link" data-page="settings">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="user-mini">
+                <div class="avatar">S</div>
+                <div>
+                    <strong>UPSC Aspirant</strong>
+                    <small>Preparing for CSE</small>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+
+<!-- ================= MAIN ================= -->
+
+    <div class="main-wrapper">
+
+        <!-- HEADER -->
+
+        <header class="header">
+
+            <button class="menu-btn" id="menuBtn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="Search UPSC topics...">
+            </div>
+
+            <div class="header-right">
+
+                <button class="icon-btn">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </button>
+
+                <div class="profile">
+                    <div class="avatar">S</div>
+
+                    <div class="profile-info">
+                        <strong>Student</strong>
+                        <small>UPSC Aspirant</small>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+
+            </div>
+
+        </header>
+
+
+<!-- ================= CONTENT ================= -->
+
+        <main id="content">
+
+
+<!-- ================================================= -->
+<!-- HOME -->
+<!-- ================================================= -->
+
+            <section class="page active-page" id="home">
+
+                <div class="hero">
+
+                    <div class="hero-content">
+
+                        <span class="badge">
+                            <i class="fa-solid fa-sparkles"></i>
+                            AI + MENTORSHIP
+                        </span>
+
+                        <h1>
+                            Prepare Smarter.<br>
+                            <span>Crack UPSC.</span>
+                        </h1>
+
+                        <p>
+                            Your AI-powered companion for Prelims, Mains,
+                            Interview and complete UPSC preparation.
+                        </p>
+
+                        <div class="hero-buttons">
+                            <button class="btn primary" data-go="dashboard">
+                                Start Preparation
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+
+                            <button class="btn outline" data-go="evaluator">
+                                Try AI Evaluator
+                            </button>
+                        </div>
+
+                        <div class="hero-stats">
+
+                            <div>
+                                <strong>10K+</strong>
+                                <span>Aspirants</span>
+                            </div>
+
+                            <div>
+                                <strong>50K+</strong>
+                                <span>Answers Evaluated</span>
+                            </div>
+
+                            <div>
+                                <strong>95%</strong>
+                                <span>AI Accuracy</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="hero-visual">
+
+                        <div class="ai-card">
+
+                            <div class="ai-card-top">
+                                <div class="ai-icon">
+                                    <i class="fa-solid fa-brain"></i>
+                                </div>
+
+                                <span>AI ANALYSIS</span>
+                            </div>
+
+                            <h3>Your Preparation Score</h3>
+
+                            <div class="score-circle">
+                                <div>
+                                    <strong>78%</strong>
+                                    <span>Excellent</span>
+                                </div>
+                            </div>
+
+                            <div class="progress-row">
+                                <span>Prelims</span>
+                                <div class="progress">
+                                    <i style="width:82%"></i>
+                                </div>
+                                <b>82%</b>
+                            </div>
+
+                            <div class="progress-row">
+                                <span>Mains</span>
+                                <div class="progress">
+                                    <i style="width:71%"></i>
+                                </div>
+                                <b>71%</b>
+                            </div>
+
+                            <div class="progress-row">
+                                <span>Current Affairs</span>
+                                <div class="progress">
+                                    <i style="width:88%"></i>
+                                </div>
+                                <b>88%</b>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FEATURES -->
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="section-label">POWERFUL FEATURES</span>
+                        <h2>Everything you need for UPSC</h2>
+                    </div>
+
+                    <p>
+                        AI-powered tools + human mentorship
+                        for smarter preparation.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-grid">
+
+                    <div class="feature-card purple" data-go="evaluator">
+                        <div class="feature-number">01</div>
+                        <div class="feature-icon">
+                            <i class="fa-solid fa-file-circle-check"></i>
+                        </div>
+                        <h3>AI Mains Answer Evaluator</h3>
+                        <p>
+                            Get AI evaluation based on content,
+                            relevance, structure, grammar and presentation.
+                        </p>
+                        <a>Try now →</a>
+                    </div>
+
+                    <div class="feature-card green" data-go="newspaper">
+                        <div class="feature-number">02</div>
+                        <div class="feature-icon">
+                            <i class="fa-solid fa-newspaper"></i>
+                        </div>
+                        <h3>AI Newspaper Analyzer</h3>
+                        <p>
+                            Extract important news, UPSC keywords,
+                            MCQs and Mains questions automatically.
+                        </p>
+                        <a>Analyze news →</a>
+                    </div>
+
+                    <div class="feature-card orange" data-go="revision">
+                        <div class="feature-number">03</div>
+                        <div class="feature-icon">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <h3>Personalized Revision Map</h3>
+                        <p>
+                            AI creates a revision plan based on
+                            your weak topics, exam date and performance.
+                        </p>
+                        <a>View revision →</a>
+                    </div>
+
+                    <div class="feature-card blue" data-go="interview">
+                        <div class="feature-number">04</div>
+                        <div class="feature-icon">
+                            <i class="fa-solid fa-microphone"></i>
+                        </div>
+                        <h3>UPSC Interview Simulator</h3>
+                        <p>
+                            Practice UPSC interview with AI
+                            and receive instant performance feedback.
+                        </p>
+                        <a>Start interview →</a>
+                    </div>
+
+                    <div class="feature-card pink" data-go="mentor">
+                        <div class="feature-number">05</div>
+                        <div class="feature-icon">
+                            <i class="fa-solid fa-user-group"></i>
+                        </div>
+                        <h3>AI + Human Mentor Hub</h3>
+                        <p>
+                            Connect with verified mentors,
+                            book 1-to-1 sessions and receive guidance.
+                        </p>
+                        <a>Find mentor →</a>
+                    </div>
+
+                    <div class="feature-card teal" data-go="analytics">
+                        <div class="feature-number">06</div>
+                        <div class="feature-icon">
+                            <i class="fa-solid fa-chart-column"></i>
+                        </div>
+                        <h3>Smart Analytics Dashboard</h3>
+                        <p>
+                            Track progress, accuracy, rank and
+                            time management with smart insights.
+                        </p>
+                        <a>View analytics →</a>
+                    </div>
+
+                </div>
+
+
+                <!-- QUICK SERVICES -->
+
+                <div class="quick-grid">
+
+                    <div class="quick-card" data-go="tests">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <div>
+                            <h3>Test Series</h3>
+                            <p>Prelims + Mains tests</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-card" data-go="current">
+                        <i class="fa-solid fa-globe"></i>
+                        <div>
+                            <h3>Current Affairs</h3>
+                            <p>Daily UPSC updates</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-card" data-go="doubt">
+                        <i class="fa-solid fa-robot"></i>
+                        <div>
+                            <h3>AI Doubt Solver</h3>
+                            <p>Ask anything instantly</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-card" data-go="analytics">
+                        <i class="fa-solid fa-ranking-star"></i>
+                        <div>
+                            <h3>Performance</h3>
+                            <p>Accuracy & rank</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- DEVELOPER / TEAM -->
+<!-- ================================================= -->
+
+            <section id="developer" class="page">
+
+                <div class="section-heading team-heading">
+                    <div>
+                        <span class="section-label">OUR TEAM</span>
+                        <h2>Meet the PreSphere AI Team</h2>
+                    </div>
+
+                    <p>
+                        A team working together to build
+                        smarter AI-powered UPSC preparation web application.
+                    </p>
+                </div>
+
+                <div class="team-grid">
+
+                    <div class="team-card team-lead">
+                        <div class="team-image-wrapper">
+                            <img
+                                src="https://i.pinimg.com/736x/21/d7/b5/21d7b5a3bda3c41b24b08119557dbd8e.jpg"
+                                alt="Satendra">
+                        </div>
+
+                        <span class="team-role lead-role">Team Lead</span>
+
+                        <h3>Satendra</h3>
+
+                        <div class="team-skills">
+                            <h4>25ai1sa121@mitsgwl.ac.in</h4>
+                            <span>➡️AI/ML & Deep Learning</span>
+                            <span>➡️Python</span>
+                            <span>➡️C++</span>
+                            <span>➡️DSA & C++</span>
+                        </div>
+                    </div>
+
+                    <div class="team-card">
+                        <div class="team-image-wrapper">
+                            <img src="images/photo1.jpeg" alt="Priyanshu Barman">
+                        </div>
+
+                        <span class="team-role">Developer</span>
+
+                        <h3>Priyanshu Barman</h3>
+
+                        <div class="team-skills">
+                            <h4>25ai1pr102@mitsgwl.ac.in</h4>
+                            <span>➡️Frontend & Backend</span>
+                            <span>➡️Java</span>
+                            <span>➡️DSA, Python & TensorFlow</span>
+                        </div>
+                    </div>
+
+                    <div class="team-card">
+                        <div class="team-image-wrapper">
+                            <img src="images/nitin.jpeg" alt="Nitin Gaur">
+                        </div>
+
+                        <span class="team-role">Developer</span>
+
+                        <h3>Nitin Gaur</h3>
+
+                        <div class="team-skills">
+                            <h4> 25ai1ni89@mitsgwl.ac.in</h4>
+                            <span>➡️Graphic Designer</span>
+                            <span>➡️DSA & C++</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="institution-card">
+
+                    <div class="institution-logo">
+                        <img
+                            src="https://img.jagranjosh.com/images/2022/June/162022/MITS.png"
+                            alt="MITS Gwalior">
+                    </div>
+
+                    <div class="institution-content">
+
+                        <span class="section-label">DEVELOPED AT</span>
+
+                        <h2>Madhav Institute of Technology and Science, Gwalior</h2>
+
+                        <p class="guidance-title">Under the Guidance of</p>
+
+                        <div class="mentor-info">
+                            <img src="images/photo .png" alt="Dr. Shipra Shukla">
+
+                            <div>
+                                <h3>Dr. Shipra Shukla</h3>
+                                <p>Assistant professor</p>
+                                <p>Project Guide & Mentor</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- DASHBOARD -->
+<!-- ================================================= -->
+
+            <section class="page" id="dashboard">
+
+                <div class="page-title">
+                    <div>
+                        <span class="section-label">YOUR PREPARATION</span>
+                        <h1>Dashboard</h1>
+                        <p>Good morning! Let's continue your UPSC journey.</p>
+                    </div>
+
+                    <button class="btn primary" data-go="tests">
+                        <i class="fa-solid fa-play"></i>
+                        Continue Learning
+                    </button>
+                </div>
+
+
+                <div class="dashboard-stats">
+
+                    <div class="stat-card">
+                        <div class="stat-icon purple-bg">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <div>
+                            <small>Overall Accuracy</small>
+                            <h2 id="dashScore">0%</h2>
+                            <span id="dashDelta">Take a test to begin</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon green-bg">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <div>
+                            <small>Topics Completed</small>
+                            <h2 id="dashTopics">0</h2>
+                            <span id="dashTopicsOf">of 0 topics</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon orange-bg">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div>
+                            <small>Study Time</small>
+                            <h2 id="dashStudy">0h</h2>
+                            <span>Today</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon blue-bg">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                        <div>
+                            <small>Study Streak</small>
+                            <h2 id="dashStreak">0 Days</h2>
+                            <span class="positive">Keep going!</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!--  -->
+                <!-- 
+                
+                -->
+                <div class="panel score-summary" id="dashScoreCard" data-go="score" title="View subject-wise marks">
+                    <div>
+                        <span>QUESTIONS DONE</span>
+                        <strong id="dsQuestions">0</strong>
+                    </div>
+                    <div>
+                        <span>TOTAL SCORE</span>
+                        <strong id="dsMarks">0</strong>
+                        <small id="dsMax">of 0 marks</small>
+                    </div>
+                    <p>Click to see subject-wise marks <i class="fa-solid fa-arrow-right"></i></p>
+                </div>
+
+
+
+
+
+
+
+
+
+
+                <div class="dashboard-grid">
+
+                    <div class="panel large-panel">
+
+                        <div class="panel-header">
+                            <div>
+                                <h3>Preparation Progress</h3>
+                                <p>Subject-wise performance</p>
+                            </div>
+
+                            <select>
+                                <option>This Week</option>
+                                <option>This Month</option>
+                                <option>This Year</option>
+                            </select>
+                        </div>
+
+                        <div class="bar-chart" id="dashBars"></div>
+
+                    </div>
+
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+                            <div>
+                                <h3>Today's Plan</h3>
+                                <p id="dashTasksSub">0 tasks today</p>
+                            </div>
+                        </div>
+
+                        <div class="task-list" id="dashTasks"></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel ai-recommendation">
+
+                    <div class="ai-recommend-icon">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+
+                    <div>
+                        <span>AI RECOMMENDATION</span>
+                        <h3 id="dashRecTitle">Loading recommendation...</h3>
+                        <p id="dashRecText"></p>
+                    </div>
+
+                    <button class="btn dark" data-go="revision">View Plan</button>
+
+                </div>
+
+            </section>
+<!-- adding new line   -->
+            <a href="#" class="nav-link" data-page="score">
+                <i class="fa-solid fa-trophy"></i>
+                <span>My Score</span>
+            </a>
+
+<!-- for video upload  -->
+
+<!-- ================================================= -->
+<!-- MAINS EVALUATOR -->
+<!-- ================================================= -->
+
+            <section class="page" id="evaluator">
+
+                <div class="page-title">
+                    <div>
+                        <span class="section-label">AI POWERED</span>
+                        <h1>AI Mains Answer Evaluator</h1>
+                        <p>Get instant UPSC-style feedback on your answers.</p>
+                    </div>
+                </div>
+
+                <div class="evaluator-grid">
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+                            <div>
+                                <h3>Write Your Answer</h3>
+                                <p>Write or paste your Mains answer below.</p>
+                            </div>
+
+                            <button class="btn small outline" id="mainsRandom">
+                                <i class="fa-solid fa-shuffle"></i>
+                                Random
+                            </button>
+                        </div>
+
+                        <select id="mainsSelect" class="date-select" style="width:100%;margin-bottom:14px;">
+                            <option>Loading questions...</option>
+                        </select>
+
+                        <div class="question-box">
+                            <strong>Question:</strong>
+
+                            <p id="questionText">Loading question...</p>
+
+                            <span id="questionMeta">UPSC GS-II • 150 Words</span>
+                        </div>
+
+                        <textarea id="answerInput" class="answer-box"
+                            placeholder="Write your answer here..."></textarea>
+
+                        <div class="answer-footer">
+                            <span id="wordCount">0 words</span>
+
+                            <button class="btn primary" id="evaluateBtn">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                Evaluate with AI
+                            </button>
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel evaluation-result" id="evalResultBody">
+
+                        <div class="result-heading">
+                            <div class="result-circle">
+                                <strong>--</strong>
+                                <small>/20</small>
+                            </div>
+
+                            <div>
+                                <span>AI SCORE</span>
+                                <h3>Waiting for your answer</h3>
+                                <p>Write an answer and click "Evaluate with AI".</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- NEWSPAPER -->
+<!-- ================================================= -->
+
+            <section class="page" id="newspaper">
+
+                <div class="page-title">
+                    <div>
+                        <span class="section-label">AI CURRENT AFFAIRS</span>
+                        <h1>Newspaper Analyzer</h1>
+                        <p>Turn your newspaper into UPSC-ready notes.</p>
+                    </div>
+                </div>
+
+                <div class="upload-panel panel">
+
+                    <div class="upload-icon">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+
+                    <h2>Upload Newspaper</h2>
+
+                    <p>
+                        Upload PDF, JPG or PNG and AI will extract
+                        important UPSC content.
+                    </p>
+
+                    <input type="file" id="newsFile" accept=".pdf,.jpg,.jpeg,.png" hidden>
+
+                    <button class="btn primary" onclick="document.getElementById('newsFile').click()">
+                        <i class="fa-solid fa-upload"></i>
+                        Upload File
+                    </button>
+
+                    <p id="fileName" class="file-name"></p>
+
+                </div>
+
+
+                <div class="news-results">
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+                            <h3>Important News</h3>
+                            <span class="tag">Today</span>
+                        </div>
+
+                        <div id="newsItemsList">
+                            <p class="muted-note">Upload a newspaper to see important news.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+                            <h3>AI Generated Questions</h3>
+                        </div>
+
+                        <div id="generatedQuestionsList">
+                            <p class="muted-note">Questions will appear here.</p>
+                        </div>
+
+                        <button class="btn outline full" id="moreQuestions">
+                            Generate More Questions
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="panel" style="margin-top:20px;">
+
+                    <div class="panel-header">
+                        <h3>Practice MCQs</h3>
+                    </div>
+
+                    <div id="newsMcqList">
+                        <p class="muted-note">MCQs will appear here.</p>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- REVISION -->
+<!-- ================================================= -->
+
+            <section class="page" id="revision">
+
+                <div class="page-title">
+
+                    <div>
+                        <span class="section-label">AI STUDY PLANNER</span>
+                        <h1>Personalized Revision Map</h1>
+                        <p>AI-powered revision based on your performance.</p>
+                    </div>
+
+                    <button class="btn primary" id="regenPlan">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        Generate Plan
+                    </button>
+
+                </div>
+
+
+                <div class="revision-overview">
+
+                    <div class="revision-score">
+                        <div class="large-score" id="revScore">0%</div>
+                        <span>Preparation Score</span>
+                    </div>
+
+                    <div>
+                        <h3>Your revision priority</h3>
+                        <p id="revSummary">Loading your revision plan...</p>
+
+                        <div class="priority-list" id="revPriorities"></div>
+                    </div>
+
+                </div>
+
+
+                <div class="revision-grid" id="revGrid"></div>
+
+
+                <div class="panel" style="margin-top:20px;">
+
+                    <div class="panel-header">
+                        <div>
+                            <h3>Weekly Schedule</h3>
+                            <p>Your AI-generated study plan</p>
+                        </div>
+                    </div>
+
+                    <div class="schedule-grid" id="revSchedule"></div>
+
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- INTERVIEW -->
+<!-- ================================================= -->
+
+            <section class="page" id="interview">
+
+                <div class="page-title">
+
+                    <div>
+                        <span class="section-label">AI MOCK INTERVIEW</span>
+                        <h1>UPSC Interview Simulator</h1>
+                        <p>Practice your personality test with AI.</p>
+                    </div>
+
+                    <span class="live-status">
+                        <i></i> AI READY
+                    </span>
+
+                </div>
+
+
+                <div class="interview-container">
+
+                    <div class="interviewer">
+
+                        <div class="interviewer-avatar">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+
+                        <span id="ivCategory">AI INTERVIEWER</span>
+
+                        <h2>Good morning.</h2>
+
+                        <p id="ivQuestion">
+                            Loading question...
+                        </p>
+
+                        <div class="wave">
+                            <i></i><i></i><i></i><i></i>
+                            <i></i><i></i><i></i><i></i>
+                        </div>
+
+                        <textarea id="ivAnswer" class="answer-box"
+                            placeholder="Speak using the microphone or type your answer here..."></textarea>
+
+                        <div class="mic-button" id="micButton">
+                            <i class="fa-solid fa-microphone"></i>
+                        </div>
+
+                        <small>Click microphone to answer</small>
+
+                        <div class="feedback-box" id="ivFeedback" hidden></div>
+
+                    </div>
+
+
+                    <div class="interview-info panel">
+
+                        <h3>Interview Session</h3>
+
+                        <div class="session-stat">
+                            <span>Questions</span>
+                            <strong id="ivCount">0 / 0</strong>
+                        </div>
+
+                        <div class="session-stat">
+                            <span>Time</span>
+                            <strong id="ivTime">00:00</strong>
+                        </div>
+
+                        <div class="session-stat">
+                            <span>Last Score</span>
+                            <strong id="ivScore">-</strong>
+                        </div>
+
+                        <hr>
+
+                        <h4>AI will evaluate</h4>
+
+                        <ul class="check-list">
+                            <li>Communication</li>
+                            <li>Confidence</li>
+                            <li>Content quality</li>
+                            <li>Body language</li>
+                            <li>Clarity</li>
+                        </ul>
+
+                        <button class="btn primary full" id="ivNext">
+                            Submit Answer
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+
+                        <button class="btn outline full" id="ivRestart">
+                            Restart Interview
+                        </button>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- TEST SERIES -->
+<!-- ================================================= -->
+
+            <section class="page" id="tests">
+
+                <div class="page-title">
+
+                    <div>
+                        <span class="section-label">PRACTICE</span>
+                        <h1>Test Series</h1>
+                        <p>Practice with UPSC-level questions.</p>
+                    </div>
+
+                </div>
+
+                <!-- Test list -->
+                <div id="testList">
+
+                    <div class="test-tabs" id="testTabs">
+                        <button class="active" data-filter="all">All Tests</button>
+                        <button data-filter="PRELIMS">Full Mocks</button>
+                        <button data-filter="SUBJECT">Subject-wise</button>
+                    </div>
+
+                    <div class="test-grid" id="testGrid"></div>
+
+                </div>
+
+                <!-- Test runner -->
+                <div class="panel" id="testRunner" hidden>
+
+                    <div class="panel-header">
+                        <div>
+                            <h3 id="trTitle">Test</h3>
+                            <p id="trProgress">Question 1 of 1</p>
+                        </div>
+
+                        <div class="live-status">
+                            <i class="fa-solid fa-clock"></i>
+                            <strong id="trTimer">00:00</strong>
+                        </div>
+                    </div>
+
+                    <div class="progress">
+                        <i id="trBar" style="width:0%"></i>
+                    </div>
+
+                    <p id="trMeta" class="muted-note" style="margin-top:14px;"></p>
+                    <h3 id="trQuestion" style="margin:10px 0 18px;"></h3>
+
+                    <div id="trOptions"></div>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
+                        <button class="btn outline" id="trPrev">
+                            <i class="fa-solid fa-arrow-left"></i> Previous
+                        </button>
+                        <button class="btn outline" id="trClear">Clear</button>
+                        <button class="btn outline" id="trNext">
+                            Next <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <button class="btn primary" id="trSubmit">Submit Test</button>
+                    </div>
+
+                </div>
+
+                <!-- Test result -->
+                <div class="panel" id="testResult" hidden></div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- CURRENT AFFAIRS -->
+<!-- ================================================= -->
+
+            <section class="page" id="current">
+
+                <div class="page-title">
+
+                    <div>
+                        <span class="section-label">DAILY UPDATES</span>
+                        <h1>Current Affairs</h1>
+                        <p>Stay updated with UPSC-relevant news.</p>
+                    </div>
+
+                    <button class="btn primary" data-go="newspaper">
+                        Today's Digest
+                    </button>
+
+                </div>
+
+
+                <div class="current-grid">
+
+                    <article class="current-card">
+                        <span class="tag green-tag">POLITY</span>
+                        <h2>Governance & Civil Services Reform</h2>
+                        <p>
+                            Key developments in governance,
+                            public administration and institutional reforms.
+                        </p>
+                        <div class="current-bottom">
+                            <span>GS-II</span>
+                            <button>Read →</button>
+                        </div>
+                    </article>
+
+                    <article class="current-card">
+                        <span class="tag blue-tag">ENVIRONMENT</span>
+                        <h2>Climate Action & Sustainability</h2>
+                        <p>
+                            Important developments related to climate,
+                            biodiversity and sustainable development.
+                        </p>
+                        <div class="current-bottom">
+                            <span>GS-III</span>
+                            <button>Read →</button>
+                        </div>
+                    </article>
+
+                    <article class="current-card">
+                        <span class="tag orange-tag">ECONOMY</span>
+                        <h2>India's Economic Growth</h2>
+                        <p>
+                            Major economic policies, growth indicators,
+                            inflation and financial developments.
+                        </p>
+                        <div class="current-bottom">
+                            <span>GS-III</span>
+                            <button>Read →</button>
+                        </div>
+                    </article>
+
+                    <article class="current-card">
+                        <span class="tag purple-tag">IR</span>
+                        <h2>India & Global Relations</h2>
+                        <p>
+                            Important international developments
+                            relevant to India's foreign policy.
+                        </p>
+                        <div class="current-bottom">
+                            <span>GS-II</span>
+                            <button>Read →</button>
+                        </div>
+                    </article>
+
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- MENTOR -->
+<!-- ================================================= -->
+
+            <section class="page" id="mentor">
+
+                <div class="page-title">
+
+                    <div>
+                        <span class="section-label">GUIDANCE</span>
+                        <h1>AI + Human Mentor Hub</h1>
+                        <p>Get personalized guidance from experienced mentors.</p>
+                    </div>
+
+                    <button class="btn primary">
+                        Become a Mentor
+                    </button>
+
+                </div>
+
+
+                <div class="mentor-banner">
+
+                    <div>
+                        <span>PERSONALIZED GUIDANCE</span>
+                        <h2>Don't prepare alone.</h2>
+                        <p>
+                            Connect with mentors who understand
+                            the UPSC journey.
+                        </p>
+                    </div>
+
+                    <div class="mentor-banner-icon">
+                        <i class="fa-solid fa-people-arrows"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="mentor-grid">
+
+                    <div class="mentor-card">
+                        <div class="mentor-photo">A</div>
+                        <div class="mentor-info">
+                            <span class="mentor-role">IAS MENTOR</span>
+                            <h3>Dr. Ananya Sharma</h3>
+                            <p>10+ years mentoring experience</p>
+                            <div class="rating">★★★★★ <span>4.9</span></div>
+                            <div class="mentor-tags">
+                                <span>GS-II</span>
+                                <span>Essay</span>
+                                <span>Interview</span>
+                            </div>
+                            <button class="btn primary full">Book Session</button>
+                        </div>
+                    </div>
+
+                    <div class="mentor-card">
+                        <div class="mentor-photo green">R</div>
+                        <div class="mentor-info">
+                            <span class="mentor-role">UPSC MENTOR</span>
+                            <h3>Rahul Verma</h3>
+                            <p>7+ years teaching experience</p>
+                            <div class="rating">★★★★★ <span>4.8</span></div>
+                            <div class="mentor-tags">
+                                <span>Polity</span>
+                                <span>History</span>
+                                <span>GS-II</span>
+                            </div>
+                            <button class="btn primary full">Book Session</button>
+                        </div>
+                    </div>
+
+                    <div class="mentor-card">
+                        <div class="mentor-photo orange">P</div>
+                        <div class="mentor-info">
+                            <span class="mentor-role">CSE EXPERT</span>
+                            <h3>Priya Singh</h3>
+                            <p>8+ years mentoring experience</p>
+                            <div class="rating">★★★★★ <span>4.9</span></div>
+                            <div class="mentor-tags">
+                                <span>Economy</span>
+                                <span>Essay</span>
+                                <span>Ethics</span>
+                            </div>
+                            <button class="btn primary full">Book Session</button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- AI DOUBT -->
+<!-- ================================================= -->
+
+            <section class="page" id="doubt">
+
+                <div class="page-title">
+
+                    <div>
+                        <span class="section-label">AI ASSISTANT</span>
+                        <h1>AI Doubt Solver</h1>
+                        <p>Ask your UPSC questions and get instant explanations.</p>
+                    </div>
+
+                </div>
+
+
+                <div class="chat-container panel">
+
+                    <div class="chat-header">
+
+                        <div class="ai-small">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+
+                        <div>
+                            <h3>UPSC AI Assistant</h3>
+                            <span>
+                                <i class="online-dot"></i>
+                                Online
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="chat-body" id="chatBody">
+
+                        <div class="message ai-message">
+                            <div class="message-avatar">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+
+                            <div>
+                                <span class="message-name">UPSC AI</span>
+                                <p>
+                                    Hello! 👋 Ask me anything related to
+                                    UPSC preparation.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="suggestions">
+                            <button>Explain Fundamental Rights</button>
+                            <button>Difference between GDP & GNP</button>
+                            <button>Give me a GS-II question</button>
+                        </div>
+
+                    </div>
+
+
+                    <div class="chat-input">
+
+                        <input id="chatInput" type="text" placeholder="Ask your UPSC doubt...">
+
+                        <button id="sendMessage">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+<!--  adding new section  -->
+              <a href="#" class="nav-link" data-page="videos">
+                <i class="fa-solid fa-video"></i>
+                <span>Video Lectures</span>
+            </a>
+            
+            <a href="#" class="nav-link" data-page="notes">
+                <i class="fa-solid fa-book-bookmark"></i>
+                <span>Notes</span>
+            </a>
+
+
+
+
+
+<!-- ================================================= -->
+<!-- ANALYTICS -->
+<!-- ================================================= -->
+
+            <section class="page" id="analytics">
+
+                <div class="page-title">
+
+                    <div>
+                        <span class="section-label">SMART ANALYTICS</span>
+                        <h1>Performance Dashboard</h1>
+                        <p>Understand your preparation with data.</p>
+                    </div>
+
+                    <select class="date-select">
+                        <option>Last 30 Days</option>
+                        <option>Last 3 Months</option>
+                        <option>This Year</option>
+                    </select>
+
+                </div>
+
+
+                <div class="analytics-stats">
+
+                    <div class="analytics-card">
+                        <span>TEST ACCURACY</span>
+                        <strong id="anAccuracy">0%</strong>
+                        <small id="anDelta">0 questions attempted</small>
+                    </div>
+
+                    <div class="analytics-card">
+                        <span>MAINS AVERAGE</span>
+                        <strong id="anMains">0%</strong>
+                        <small id="anMainsSub">0 interview answers scored</small>
+                    </div>
+
+                    <div class="analytics-card">
+                        <span>ANSWERS WRITTEN</span>
+                        <strong id="anAnswers">0</strong>
+                        <small id="anAnswersSub">0 this week</small>
+                    </div>
+
+                    <div class="analytics-card">
+                        <span>STUDY HOURS</span>
+                        <strong id="anHours">0h</strong>
+                        <small>Last 30 days</small>
+                    </div>
+
+                </div>
+
+
+                <div class="analytics-grid">
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+                            <div>
+                                <h3>Weekly Performance</h3>
+                                <p>Accuracy percentage</p>
+                            </div>
+                        </div>
+
+                        <div class="line-chart">
+
+                            <svg viewBox="0 0 600 260" preserveAspectRatio="none">
+                                <polyline id="anLine" points="20,245 580,245"
+                                    fill="none" stroke="currentColor" stroke-width="4" />
+                            </svg>
+
+                            <div class="chart-labels" id="anLabels"></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+                            <h3></h3>
+                        </div>
+
+                        <div class="strength" id="anStrength"></div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- SETTINGS -->
+<!-- ================================================= -->
+
+            <section class="page" id="settings">
+
+                <div class="page-title">
+
+                    <div>
+                        <span class="section-label">ACCOUNT</span>
+                        <h1>Settings</h1>
+                        <p>Manage your study platform preferences.</p>
+                    </div>
+
+                </div>
+
+
+                <div class="settings-grid">
+
+                    <div class="panel settings-menu">
+
+                        <button class="setting-tab active">
+                            <i class="fa-solid fa-user"></i>
+                            Profile
+                        </button>
+
+                        <button class="setting-tab">
+                            <i class="fa-solid fa-bell"></i>
+                            Notifications
+                        </button>
+
+                        <button class="setting-tab">
+                            <i class="fa-solid fa-book"></i>
+                            Study Preferences
+                        </button>
+
+                        <button class="setting-tab">
+                            <i class="fa-solid fa-lock"></i>
+                            Security
+                        </button>
+
+                    </div>
+
+
+                    <div class="panel">
+
+                        <h3>Profile Information</h3>
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" value="UPSC Aspirant">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" value="student@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Target Exam</label>
+                                <select>
+                                    <option>UPSC CSE 2027</option>
+                                    <option>UPSC CSE 2028</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Optional Subject</label>
+                                <select>
+                                    <option>Select Subject</option>
+                                    <option>Geography</option>
+                                    <option>History</option>
+                                    <option>Political Science</option>
+                                    <option>Sociology</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <button class="btn primary">
+                            Save Changes
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- my score card  -->
+             <!--  -->
+<!-- ================================================= -->
+<!-- MY SCORE -->
+<!-- ================================================= -->
+
+            <section class="page" id="score">
+
+                <div class="page-title">
+                    <div>
+                        <span class="section-label">YOUR RESULTS</span>
+                        <h1>My Score</h1>
+                        <p>Total questions done and subject-wise marks.</p>
+                    </div>
+                    <button class="btn primary" data-go="tests">
+                        <i class="fa-solid fa-play"></i>
+                        Take a Test
+                    </button>
+                </div>
+
+                <div class="analytics-stats">
+                    <div class="analytics-card">
+                        <span>QUESTIONS DONE</span>
+                        <strong id="scQuestions">0</strong>
+                        <small id="scTests">0 tests taken</small>
+                    </div>
+                    <div class="analytics-card sc-total" id="scTotalCard" style="cursor:pointer" title="Show subject-wise marks">
+                        <span>TOTAL SCORE</span>
+                        <strong id="scMarks">0</strong>
+                        <small id="scMax">of 0 marks</small>
+                    </div>
+                    <div class="analytics-card">
+                        <span>CORRECT / WRONG</span>
+                        <strong id="scCW">0 / 0</strong>
+                        <small>+2 correct, −⅔ wrong</small>
+                    </div>
+                    <div class="analytics-card">
+                        <span>ACCURACY</span>
+                        <strong id="scAcc">0%</strong>
+                        <small>of attempted questions</small>
+                    </div>
+                </div>
+
+                <div class="panel" id="scSubjectsPanel">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Subject-wise Marks</h3>
+                            <p>Click a subject to see topic-wise marks</p>
+                        </div>
+                    </div>
+                    <div id="scSubjects"></div>
+                </div>
+
+                <div class="panel" style="margin-top:20px;">
+                    <div class="panel-header">
+                        <h3>Recent Tests</h3>
+                    </div>
+                    <div id="scTestsList"></div>
+                </div>
+
+            </section>
+
+
+<!-- ================================================= -->
+<!-- VIDEO LECTURES -->
+<!-- ================================================= -->
+
+            <section class="page" id="videos">
+
+                <div class="page-title">
+                    <div>
+                        <span class="section-label">LEARNING</span>
+                        <h1>Video Lectures</h1>
+                        <p>Upload and watch subject-wise videos.</p>
+                    </div>
+                </div>
+
+                <div class="panel video-upload">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Upload a Video</h3>
+                            <p>MP4 / WebM recommended (max 500 MB)</p>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="vidTitle">Title</label>
+                            <input type="text" id="vidTitle" placeholder="e.g. Fundamental Rights — Lecture 1">
+                        </div>
+                        <div class="form-group">
+                            <label for="vidSubject">Subject</label>
+                            <input type="text" id="vidSubject" list="vidSubjects" placeholder="e.g. Polity">
+                            <datalist id="vidSubjects"></datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="vidFile">Video file</label>
+                            <input type="file" id="vidFile" accept="video/*">
+                        </div>
+                    </div>
+
+                    <div class="progress" id="vidProgress" hidden><i id="vidBar" style="width:0%"></i></div>
+                    <p class="muted-note" id="vidPct" hidden></p>
+
+                    <button class="btn primary" id="vidUpload">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        Upload Video
+                    </button>
+                </div>
+
+                <div class="video-grid" id="vidGrid"></div>
+
+            </section>
+            
+
+
+
+<!-- ================================================= -->
+<!-- NOTES -->
+<!-- ================================================= -->
+
+            <section class="page" id="notes">
+
+                <div class="page-title">
+                    <div>
+                        <span class="section-label">STUDY MATERIAL</span>
+                        <h1>Notes</h1>
+                        <p>Pick a subject to see only that subject's notes.</p>
+                    </div>
+                </div>
+
+                <div class="note-chips" id="noteChips"></div>
+
+                <h3 id="noteHeading" class="note-heading">All Notes</h3>
+                <div class="note-grid" id="noteGrid"></div>
+
+                <div class="panel" style="margin-top:24px;">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Add a Note</h3>
+                            <p>Type your notes, attach a PDF/image/doc, or both (max 500 MB)</p>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="noteTitle">Title</label>
+                            <input type="text" id="noteTitle" placeholder="e.g. Fundamental Rights — summary">
+                        </div>
+                        <div class="form-group">
+                            <label for="noteSubject">Subject</label>
+                            <input type="text" id="noteSubject" list="noteSubjects" placeholder="e.g. Polity">
+                            <datalist id="noteSubjects"></datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="noteFile">File (optional)</label>
+                            <input type="file" id="noteFile" accept=".pdf,.png,.jpg,.jpeg,.txt,.md,.docx,.pptx">
+                        </div>
+                    </div>
+
+                    <textarea id="noteContent" class="answer-box" style="height:160px;margin-bottom:14px;"
+                        placeholder="Write your notes here (optional if you attach a file)..."></textarea>
+
+                    <button class="btn primary" id="noteSave">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Save Note
+                    </button>
+                </div>
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+
+<!-- ================= TOAST ================= -->
+
+    <div class="toast" id="toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Action completed!</span>
+    </div>
+
+    <script type="module" src="detail.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
