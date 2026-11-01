@@ -1,4 +1,102 @@
-/* ---------- Dark-mode toggle (persisted) ---------- */
+/* =====================================================
+   AUTH (login / sign up / roles) -- must stay first
+   Uses globals from script.js: api, post, $, $$, showToast, backendError, escapeHTML, API_BASE_URL
+===================================================== */
+
+function showAuth() {
+    if (document.getElementById("authOverlay")) return;
+
+    const ov = document.createElement("div");
+    ov.id = "authOverlay";
+    ov.style.cssText = "position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:20px;" +
+                       "background:linear-gradient(120deg,#1c2233,#2b3c63)";
+    ov.innerHTML = `
+        <div class="auth-card" style="width:100%;max-width:380px;background:#fffdf8;color:#1c2233;
+             border-radius:18px;padding:32px 28px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+            <h2 style="text-align:center">PreSphere<span style="color:#a05a12">AI</span></h2>
+            <p class="auth-sub">Log in to start studying</p>
+            <div class="auth-tabs">
+                <button class="active" data-mode="login" type="button">Login</button>
+                <button data-mode="register" type="button">Sign up</button>
+            </div>
+            <input id="authUser" type="text" placeholder="Username" autocomplete="username">
+            <input id="authPass" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password">
+            <p id="authErr" class="auth-err"></p>
+            <button class="btn primary full" id="authGo" type="button">Login</button>
+        </div>`;
+    document.body.appendChild(ov);
+
+    let mode = "login";
+    const err = $("#authErr", ov), go = $("#authGo", ov);
+
+    $$(".auth-tabs button", ov).forEach(b => b.addEventListener("click", () => {
+        mode = b.dataset.mode;
+        $$(".auth-tabs button", ov).forEach(x => x.classList.toggle("active", x === b));
+        go.textContent = mode === "login" ? "Login" : "Create account";
+        $("#authPass", ov).autocomplete = mode === "login" ? "current-password" : "new-password";
+        err.textContent = "";
+    }));
+
+    async function submit() {
+        const username = $("#authUser", ov).value.trim();
+        const password = $("#authPass", ov).value;
+        if (!username || !password) { err.textContent = "Enter username and password."; return; }
+        go.disabled = true;
+        err.textContent = "";
+        try {
+            await post("/api/auth/" + mode, { username, password });
+            location.reload();
+        } catch (e) {
+            err.textContent = e.message;
+            go.disabled = false;
+        }
+    }
+
+    go.addEventListener("click", submit);
+    ov.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
+    $("#authUser", ov).focus();
+}
+
+// Any 401 from the API (not logged in / session expired) opens the login box
+const _origFetch = window.fetch.bind(window);
+window.fetch = async (...args) => {
+    const res = await _origFetch(...args);
+    const url = String(typeof args[0] === "string" ? args[0] : args[0]?.url || "");
+    if (res.status === 401 && !url.includes("/api/auth/")) showAuth();
+    return res;
+};
+
+function applyUser(user) {
+    document.body.classList.add(user.role === "admin" ? "role-admin" : "role-student");
+    $$(".user-mini strong, .profile-info strong").forEach(el => el.textContent = user.username);
+    $$(".user-mini small, .profile-info small").forEach(el => el.textContent = user.role === "admin" ? "Admin" : "Student");
+
+    // edit-only panels (the server also blocks students with 403)
+    $(".video-upload")?.classList.add("admin-only");
+    $("#noteSave")?.closest(".panel")?.classList.add("admin-only");
+
+    const out = document.createElement("button");
+    out.id = "logoutBtn";
+    out.className = "btn small outline";
+    out.type = "button";
+    out.textContent = "Logout";
+    $(".header-right")?.append(out);
+    out.addEventListener("click", async () => {
+        try { await post("/api/auth/logout", {}); } catch { /* ignore */ }
+        location.reload();
+    });
+}
+
+(async () => {
+    let user = null;
+    try { user = (await api("/api/auth/me")).user; } catch { /* backend unreachable */ }
+    user ? applyUser(user) : showAuth();
+})();
+
+
+/* =====================================================
+   DARK MODE
+===================================================== */
 const THEME_KEY = "presphere-theme";
 
 function applyTheme(dark) {
@@ -28,9 +126,9 @@ if (headerRight && !document.getElementById("themeToggle")) {
 }
 
 
-/* ---------- Dashboard: total questions + total score card ---------- */
-// Uses globals defined in script.js: api, $, $$, showToast, showPage, pageLoaders, escapeHTML, API_BASE_URL
-
+/* =====================================================
+   DASHBOARD: total questions + total score card
+===================================================== */
 async function loadScoreCard() {
     try {
         const s = await api("/api/score-summary");
@@ -44,8 +142,9 @@ const baseDashboardLoader = pageLoaders.dashboard;
 pageLoaders.dashboard = () => { baseDashboardLoader?.(); loadScoreCard(); };
 
 
-/* ---------- My Score page ---------- */
-
+/* =====================================================
+   MY SCORE page
+===================================================== */
 async function loadScore() {
     try {
         const s = await api("/api/score-summary");
@@ -93,7 +192,6 @@ async function loadScore() {
 }
 pageLoaders.score = loadScore;
 
-// Clicking "Total Score" jumps to the subject-wise breakdown
 $("#scTotalCard")?.addEventListener("click", () => {
     $("#scSubjectsPanel")?.scrollIntoView({ behavior: "smooth", block: "start" });
     $$("#scSubjects .sc-row").forEach(r => {
@@ -103,8 +201,9 @@ $("#scTotalCard")?.addEventListener("click", () => {
 });
 
 
-/* ---------- Video lectures ---------- */
-
+/* =====================================================
+   VIDEO LECTURES
+===================================================== */
 async function loadVideos() {
     try {
         const [list, tests] = await Promise.all([api("/api/videos"), api("/api/tests")]);
@@ -163,6 +262,7 @@ vidUploadBtn?.addEventListener("click", () => {
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", API_BASE_URL + "/api/videos/upload");
+    xhr.withCredentials = true;
     xhr.upload.onprogress = e => {
         if (!e.lengthComputable) return;
         const p = Math.round(e.loaded / e.total * 100);
@@ -186,12 +286,11 @@ vidUploadBtn?.addEventListener("click", () => {
     xhr.send(fd);
 });
 
-/* ---------- Notes (subject-wise) ---------- */
-/* ---------- Notes (subject-wise) ---------- */
-/* ---------- Notes (subject-wise) ---------- */
 
+/* =====================================================
+   NOTES (subject-wise)
+===================================================== */
 let noteSubject = "all";
-
 const IMG_EXT = [".png", ".jpg", ".jpeg"];
 
 function noteFileButton(n) {
@@ -244,7 +343,7 @@ async function loadNotes() {
                     <button class="btn small outline" data-del="${n.id}"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>`).join("")
-            : `<p class="muted-note">No notes${noteSubject === "all" ? "" : " for " + escapeHTML(noteSubject)} yet. Add one below.</p>`;
+            : `<p class="muted-note">No notes${noteSubject === "all" ? "" : " for " + escapeHTML(noteSubject)} yet.</p>`;
 
         $$("#noteGrid [data-read]").forEach(b => b.addEventListener("click", () => {
             const body = b.closest(".note-card").querySelector(".note-body");
@@ -265,7 +364,6 @@ async function loadNotes() {
             } catch (e) { backendError(e); }
         }));
 
-        // pre-fill the add form with the currently selected subject
         const subjInput = $("#noteSubject");
         if (subjInput && !subjInput.value && noteSubject !== "all") subjInput.value = noteSubject;
     } catch (e) { backendError(e); }
@@ -294,88 +392,9 @@ $("#noteSave")?.addEventListener("click", async () => {
         $("#noteTitle").value = "";
         $("#noteContent").value = "";
         $("#noteFile").value = "";
-        noteSubject = subject;          // jump to the subject the note was saved under
+        noteSubject = subject;
         loadNotes();
     } catch (e) { backendError(e); }
     finally { btn.disabled = false; }
 });
 
-
-
-/* ---------- Login / sign up + roles ---------- */
-
-function showAuth() {
-    const ov = document.createElement("div");
-    ov.id = "authOverlay";
-    ov.innerHTML = `
-        <div class="auth-card">
-            <h2>PreSphere<span>AI</span></h2>
-            <p class="auth-sub">Log in to start studying</p>
-            <div class="auth-tabs">
-                <button class="active" data-mode="login" type="button">Login</button>
-                <button data-mode="register" type="button">Sign up</button>
-            </div>
-            <input id="authUser" type="text" placeholder="Username" autocomplete="username">
-            <input id="authPass" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password">
-            <p id="authErr" class="auth-err"></p>
-            <button class="btn primary full" id="authGo" type="button">Login</button>
-        </div>`;
-    document.body.appendChild(ov);
-
-    let mode = "login";
-    const err = $("#authErr", ov), go = $("#authGo", ov);
-
-    $$(".auth-tabs button", ov).forEach(b => b.addEventListener("click", () => {
-        mode = b.dataset.mode;
-        $$(".auth-tabs button", ov).forEach(x => x.classList.toggle("active", x === b));
-        go.textContent = mode === "login" ? "Login" : "Create account";
-        $("#authPass", ov).autocomplete = mode === "login" ? "current-password" : "new-password";
-        err.textContent = "";
-    }));
-
-    async function submit() {
-        const username = $("#authUser", ov).value.trim();
-        const password = $("#authPass", ov).value;
-        if (!username || !password) { err.textContent = "Enter username and password."; return; }
-        go.disabled = true;
-        err.textContent = "";
-        try {
-            await post("/api/auth/" + mode, { username, password });
-            location.reload();
-        } catch (e) {
-            err.textContent = e.message;
-            go.disabled = false;
-        }
-    }
-
-    go.addEventListener("click", submit);
-    ov.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
-    $("#authUser", ov).focus();
-}
-
-function applyUser(user) {
-    document.body.classList.add(user.role === "admin" ? "role-admin" : "role-student");
-    $$(".user-mini strong, .profile-info strong").forEach(el => el.textContent = user.username);
-    $$(".user-mini small, .profile-info small").forEach(el => el.textContent = user.role === "admin" ? "Admin" : "Student");
-
-    // edit-only panels (server also blocks students with 403)
-    $(".video-upload")?.classList.add("admin-only");
-    $("#noteSave")?.closest(".panel")?.classList.add("admin-only");
-
-    const out = document.createElement("button");
-    out.id = "logoutBtn";
-    out.className = "btn small outline";
-    out.type = "button";
-    out.textContent = "Logout";
-    $(".header-right")?.append(out);
-    out.addEventListener("click", async () => {
-        try { await post("/api/auth/logout", {}); } catch { /* ignore */ }
-        location.reload();
-    });
-}
-
-(async () => {
-    let user = null;
-    try { user = (await api("/api/auth/me")).user; } catch { /* backend unreachable */ }
-    user ? applyUser(user) : showAuth();
-})();
