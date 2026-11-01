@@ -385,41 +385,6 @@ def evaluate(payload: EvalIn, user: dict = Depends(current_user)):
                            max(1, payload.marks), user["id"])
 
 
-@app.post("/api/mains/ocr")
-async def mains_ocr(files: List[UploadFile] = File(...), user: dict = Depends(current_user)):
-    mimes = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
-    images = []
-    for f in files[:5]:
-        mime = mimes.get(Path(f.filename or "").suffix.lower())
-        if not mime:
-            raise HTTPException(status_code=400, detail="Upload PNG, JPG or WEBP photos.")
-        data = await f.read()
-        if len(data) > 10 * 1048576:
-            raise HTTPException(status_code=413, detail="Each photo must be under 10 MB.")
-        images.append((data, mime))
-
-    text = None
-    if hasattr(llm, "ask_vision"):
-        text = llm.ask_vision(
-            "You transcribe handwritten exam answers accurately. Output only the transcribed text.",
-            "Transcribe this handwritten answer exactly as written, keeping paragraphs and numbered points. "
-            "Do not correct, summarise or add anything. Join multiple pages in order.",
-            images)
-
-    if not text:
-        try:
-            import pytesseract
-            from PIL import Image
-            text = "\n".join(pytesseract.image_to_string(Image.open(io.BytesIO(d))) for d, _ in images)
-        except Exception:
-            raise HTTPException(status_code=400,
-                                detail="Reading photos needs a vision-capable LLM key (or pytesseract + Tesseract).")
-
-    text = text.strip()
-    if not text:
-        raise HTTPException(status_code=400, detail="No readable text found. Use a clear, well-lit photo.")
-    return {"text": text, "words": len(text.split())}
-
 
 # ---------------------------------------------------------------- test series
 def build_tests():
